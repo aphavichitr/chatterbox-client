@@ -69,6 +69,15 @@ form input[type=text] {
     font-weight: 800;
 }
 
+.username {
+    background-color: gray;
+    padding: 10px;
+    border-style: solid;
+    border: 20px;
+    border-color: black;
+    
+}
+
 .chat:hover {
     background-color: #ddd;
 }
@@ -88,3 +97,10 @@ form input[type=text] {
     background-color: #0090da;
 }
 
+.textbox {
+    margin: 0 auto;
+}    
+
+.submit {
+    
+}

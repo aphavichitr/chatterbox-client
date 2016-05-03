@@ -5,8 +5,7 @@ $(document).ready(function() {
     app.addFriend();
   });
 
-  $('#send .submit').submit(function() {
-    console.log('invoked handle submit');
+  $('.submit').click(function() {
     app.handleSubmit();
   });
 });
@@ -51,7 +50,7 @@ app.fetch = function() {
     //   console.log(data);
     // },
 
-    success: app.addMessage,
+    success: app.display,
 
 
     error: function (data) {
@@ -66,21 +65,20 @@ app.clearMessages = function() {
 };
 
 app.addMessage = function(message) {
-
   //app.send(message);
-  var element = document.createElement('div');
-  $(element).addClass('username');
-  console.log(message.username);
-  $(element).append(message.username);
-  $('#main').append(element);
 
-  var texts = document.createElement('div');
-  $(texts).append(message.text);
-  $('#chats').append(texts);
+  console.log('message received!');
+  _.each(message.results, function(value){
+    var element = document.createElement('div');
+    $(element).addClass('username');
+    $(element).append(value.username).append('<br />');
+    $(element).append(value.text);
+    $('#main').append(element);
+  });
 };
 
 app.addRoom = function(room) {
-  var element = document.createElement('span');
+  var element = document.createElement('div');
   $(element).append(room);
   $('#roomSelect').append(element);
 };
@@ -103,9 +101,38 @@ app.displayUsernames = function(data) {
 };
 
 app.handleSubmit = function() {
-  console.log('handlesubmit invoked again');
+  var $value = $('.textbox').val();
+  var message = {
+    username: window.location.search.slice(10),
+    text: $value,
+    roomname: 'lobby'
+  };
+
+  app.send(message);
+  app.init();
+  console.log('submitting');
 };
 
+app.display = function(data) {
+  app.addMessage(data);
+  app.displayRoom(data);
+};
+
+
+app.displayRoom = function(room) {
+  var rooms = {};
+
+  _.each(room.results, function(value) {
+    rooms[value.roomname] = value.roomname;
+  });
+
+  for (var key in rooms) {
+    var options = document.createElement('option');
+    $(options).val(key);
+    $(options).text(key);
+    $('select').append(options);
+  }
+};
 
 _.escape();
 
