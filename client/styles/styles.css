@@ -10,8 +10,8 @@ body {
     margin: auto;
     text-align: left;
     background: white;
-    padding: 50px 60px;
-    border: solid #ddd;
+    padding: 50px 20px;
+    /*border: solid #ddd;*/
     border-width: 0 1px 1px 1px;
 }
 
@@ -46,6 +46,10 @@ body {
     line-height: 13px;
 }
 
+#chats {
+    width: auto;    
+}
+
 form {
     padding: 20px;
     padding-left: 0;
@@ -69,13 +73,15 @@ form input[type=text] {
     font-weight: 800;
 }
 
-.username {
-    background-color: gray;
+.message {
+    background-color: #E2FFFF;
     padding: 10px;
-    border-style: solid;
-    border: 20px;
-    border-color: black;
-    
+    margin: 10px;
+}
+
+.username {
+    /*background-color: #E2FFFF;*/
+    /*padding: 10px;    */
 }
 
 .chat:hover {
@@ -101,6 +107,8 @@ form input[type=text] {
     margin: 0 auto;
 }    
 
-.submit {
-    
+.dropdown {
+    width: 200px;
 }
+
+

@@ -17,17 +17,24 @@
     <div id="main">
       <h1>chatterbox</h1>
       <div id="roomSelect">
-        <select></select> 
+        Rooms:
+        <select class="dropdown">
+          <option>pick a room</option>
+        </select>
+        <br>
+        <br>
+        Create New Room:
+        <input class="newroom" type="text">
+        <input class='submitRoom' type="submit" value ="Submit">
       </div>
-   
+      <br>
+      <div>
+        Message:
         <input class="textbox" type="text">
-        <input type="submit" class='submit' value ="Submit">
- 
-
+        <input class='submit' type="submit" value ="Submit">
+      </div>
+      <div id="chats"></div>
     </div>
       <!-- Your HTML goes here! -->
-
-    <div id="chats"></div>
-   
   </body>
 </html>

@@ -1,24 +1,49 @@
 // YOUR CODE HERE:
 $(document).ready(function() {
+  //add new friend
   $('div').on('click', '.username', function() {
-    console.log('inside username');
-    app.addFriend();
+    var friendName = $(this).text();
+    app.addFriend(friendName);
   });
 
+  //submit new message
   $('.submit').click(function() {
-    app.handleSubmit();
+    var room = $('select').val();
+    app.handleSubmit(room);
   });
+
+  //change selected room
+  $('select').change(function() {
+    var room = $('select').val();
+    app.fetch(room);
+  });
+
+  //creates a new room
+  $('.submitRoom').click(function() {
+    var roomName = $('.newroom').val();
+    app.addRoom(roomName);
+  });
+
 });
 
 var app = {
 
 };
 
+app.friends = {};
+
 app.server = 'https://api.parse.com/1/classes/messages';
 
 app.init = function() {
-  app.fetch();
-  console.log('inside init');
+  app.fetch('pick a room');
+  setInterval(function(){
+    var roomname = $('select').val();
+    console.log('setinterval with no room picked', roomname);
+    if(roomname !== 'pick a room' ){
+      console.log('set interval with room picked');
+      app.fetch(roomname);
+    }
+  }, 5000);
 };
 
 app.send = function(message) {
@@ -38,21 +63,64 @@ app.send = function(message) {
   });
 };
 
-app.fetch = function() {
+app.fetch = function(roomname) {
   $.ajax({
-    // This is the url you should use to communicate with the parse API server.
     url: app.server,
     type: 'GET',
-    //data: JSON.stringify(message),
     contentType: 'application/json',
-    // success: function (data) {
-    //   console.log('chatterbox: Received messages');
-    //   console.log(data);
-    // },
+    success: function(data) {
+      var result = [];
 
-    success: app.display,
+      //get all rooms for drop down
+      app.fillDropDown(data);
 
+      if (roomname === 'pick a room') {
+        //does nothing so that it only gets all rooms for drop down
+      } else {
+        //shows all messages if we run fetch without a parameter
+        if (roomname === undefined) {
+          app.addMessage(data.results);
+        } else {
+          var roomExist = false;
+          //loop through raw data and create new array of objects with username/text for messages
+          _.each(data.results, function(value) {
+            if (_.escape(value.roomname) === roomname) {
+              //console.log(roomExist);
+              roomExist = true;
+              var msg = {};
+              msg['username'] = _.escape(value.username);
+              msg['text'] = _.escape(value.text);
 
+              result.push(msg);
+            }
+          });
+          if (!roomExist) {
+            var msg = {};
+            msg['username'] = window.location.search.slice(10);
+            msg['text'] = "Creating new room.";
+            msg['roomname'] = roomname;
+
+            app.send(msg);
+            app.fetch(roomname);
+
+            $('select').val(roomname);
+            console.log('doesnt exist!!!');
+
+          }
+
+          //clears page and writes new messages on DOM
+          app.addMessage(result);
+
+          //clears dropdown and repopulates the dropdown 
+          $('select').empty();
+          app.fillDropDown(data);
+
+          //keeps current selected value in drop down 
+          $('select').val(roomname);
+        }
+      }
+
+    },
     error: function (data) {
       // See: https://developer.mozilla.org/en-US/docs/Web/API/console.error
       console.error('chatterbox: Failed to receive messages', data);
@@ -64,66 +132,61 @@ app.clearMessages = function() {
   $('#chats').empty();
 };
 
+//message is passed in as an array of objects
 app.addMessage = function(message) {
-  //app.send(message);
+  app.clearMessages();
 
   console.log('message received!');
-  _.each(message.results, function(value){
-    var element = document.createElement('div');
-    $(element).addClass('username');
-    $(element).append(value.username).append('<br />');
-    $(element).append(value.text);
-    $('#main').append(element);
+  _.each(message, function(value){
+    var $msg = document.createElement('div');
+    var $username = document.createElement('div');
+    
+    $($msg).addClass('message');
+    $($username).addClass('username');
+    if(_.escape(value.username + ': ') in app.friends) {
+      console.log('bolding!!');
+      $($username).css('font-weight', 'bold');
+    }
+
+    $($username).append(_.escape(value.username + ': '));
+    $($msg).append($username);
+    $($msg).append(_.escape(value.text)).append('<br />');
+    $('#chats').append($msg);
   });
 };
 
-app.addRoom = function(room) {
-  var element = document.createElement('div');
-  $(element).append(room);
-  $('#roomSelect').append(element);
-};
 
-app.addFriend = function() {
+app.addFriend = function(friendName) {
   console.log('addFriend was called!!!!!');
+
+  app.friends[friendName] = friendName;
+  console.log(app.friends);
+  var roomname = $('select').val();
+  app.fetch(roomname);
+
 };
 
-app.displayUsernames = function(data) {
-  console.log(data);
-
-  _.each(data, function(results) {
-    _.each(results, function(message) {
-      var element = document.createElement('div');
-      $(element).addClass('username');
-      $('#main').append(element);
-      $('.username').append(message.username).append('\n');
-    });
-  });
-};
-
-app.handleSubmit = function() {
+app.handleSubmit = function(room) {
   var $value = $('.textbox').val();
   var message = {
     username: window.location.search.slice(10),
-    text: $value,
-    roomname: 'lobby'
+    text: _.escape($value),
+    roomname: room
   };
 
   app.send(message);
-  app.init();
+  app.fetch(room);
   console.log('submitting');
 };
 
-app.display = function(data) {
-  app.addMessage(data);
-  app.displayRoom(data);
-};
 
+app.fillDropDown = function(room) {
 
-app.displayRoom = function(room) {
   var rooms = {};
 
   _.each(room.results, function(value) {
-    rooms[value.roomname] = value.roomname;
+    var roomname = _.escape(value.roomname);
+    rooms[roomname] = roomname;
   });
 
   for (var key in rooms) {
@@ -134,10 +197,11 @@ app.displayRoom = function(room) {
   }
 };
 
-_.escape();
+app.addRoom = function(roomName) {
 
+  $('select').val(roomName);
+  app.fetch(roomName);
 
-
-
+};
 
 app.init();
