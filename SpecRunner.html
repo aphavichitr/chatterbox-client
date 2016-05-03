@@ -7,6 +7,9 @@
   <script src="lib/mocha/mocha.js"></script>
   <script src="lib/chai/chai.js"></script>
   <script src="lib/sinon/sinon.js"></script>
+    <script src="client/bower_components/underscore/underscore.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.6.15/browser.js"></script>
+
   <script>
     mocha.setup('bdd');
     var expect = chai.expect;
@@ -16,11 +19,11 @@
   </script>
 
   <!-- Spec files -->
+  <script src="client/env/config.js"></script>
   <script src="spec/chatterboxSpec.js"></script>
 
   <!-- Source files -->
   <script src="client/scripts/app.js"></script>
-
 </head>
 <body>
 <div id="mocha"></div>
