@@ -27,20 +27,20 @@ $(document).ready(function() {
 });
 
 var app = {
+  friends: {},
+  server: 'https://api.parse.com/1/classes/messages'
 
 };
 
-app.friends = {};
+// app.friends = {};
 
-app.server = 'https://api.parse.com/1/classes/messages';
+// app.server = 'https://api.parse.com/1/classes/messages';
 
 app.init = function() {
   app.fetch('pick a room');
   setInterval(function(){
     var roomname = $('select').val();
-    console.log('setinterval with no room picked', roomname);
     if(roomname !== 'pick a room' ){
-      console.log('set interval with room picked');
       app.fetch(roomname);
     }
   }, 5000);
@@ -63,14 +63,14 @@ app.send = function(message) {
   });
 };
 
-app.fetch = function(roomname) {
+app.fetch = function(roomname, flag) {
   $.ajax({
     url: app.server,
     type: 'GET',
     contentType: 'application/json',
     success: function(data) {
       var result = [];
-
+      console.log(data);
       //get all rooms for drop down
       app.fillDropDown(data);
 
@@ -94,6 +94,7 @@ app.fetch = function(roomname) {
               result.push(msg);
             }
           });
+          
           if (!roomExist) {
             var msg = {};
             msg['username'] = window.location.search.slice(10);
@@ -115,7 +116,7 @@ app.fetch = function(roomname) {
           $('select').empty();
           app.fillDropDown(data);
 
-          //keeps current selected value in drop down 
+          //keeps current selected value in drop down
           $('select').val(roomname);
         }
       }
@@ -146,6 +147,8 @@ app.addMessage = function(message) {
     if(_.escape(value.username + ': ') in app.friends) {
       console.log('bolding!!');
       $($username).css('font-weight', 'bold');
+      $($username).css('font-family', 'Tahoma');
+      $($username).css('color', '#3d3d5c');
     }
 
     $($username).append(_.escape(value.username + ': '));
